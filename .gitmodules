@@ -1,0 +1,6 @@
+[submodule "tools/eventbrite-ics"]
+	path = tools/eventbrite-ics
+	url = https://github.com/tiefpunkt/eventbrite-ics.git
+[submodule "tools/ics-parser"]
+	path = tools/ics-parser
+	url = https://github.com/MartinThoma/ics-parser.git

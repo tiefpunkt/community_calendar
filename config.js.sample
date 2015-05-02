@@ -1,0 +1,2 @@
+// API Key to access Google Calendars (needed for MuMaLab)
+var google_calendar_api_key = "xxxxxxxxxxxxxxx";

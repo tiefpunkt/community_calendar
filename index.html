@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='tools/fullcalendar/fullcalendar.css' rel='stylesheet' />
+<link href='tools/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
+<script src='tools/fullcalendar/lib/moment.min.js'></script>
+<script src='tools/fullcalendar/lib/jquery.min.js'></script>
+<script src='tools/fullcalendar/fullcalendar.js'></script>
+<script type='text/javascript' src='tools/fullcalendar/gcal.js'></script>
+<script type='text/javascript' src='config.js'></script>
+<script>
+
+	$(document).ready(function() {
+
+		$('#calendar').fullCalendar({
+			eventLimit: true, // allow "more" link when too many events
+			googleCalendarApiKey: google_calendar_api_key,
+			eventSources: [
+				{
+					url: "tools/eventbrite2json.php?organizer=7227151391",
+					color: "#009900"
+				},
+				{
+					url: "tools/eventbrite2json.php?organizer=7117094347",
+					color: "#00bb00"
+				},
+				{
+					googleCalendarId: 'lbd0aa2rlahecp7juvp35hd0k0@group.calendar.google.com',
+					//url: "tools/parse_ics.php?url=mumalab",
+					color: "blue"
+				},
+				{
+					url: "tools/parse_ics.php?url=muccc",
+					color: "orange"
+				},
+				{
+					url: "tools/parse_ics.php?url=werkbox",
+					color: "red"
+				},
+				{
+					url: "tools/parse_ics.php?url=arduino_meetup",
+					color: "grey"
+				}
+			]
+		});
+
+	});
+
+</script>
+<style>
+
+	body {
+		margin: 40px 10px;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+
+	#container {
+		max-width: 900px;
+		margin: 0 auto;
+	}
+
+	.legend_box {
+		display: inline-block;
+		width: 0.9em;
+		height: 0.9em;
+	}
+</style>
+</head>
+<body>
+	<div id="container">
+		<h1>Munich Makes</h1>
+		<p>Home of the Munich Maker Community</p>
+		<p>
+			Im Kalender sind bisher:
+			<ul>
+				<li>Arduino Meetup <span class="legend_box" style="background: grey;"></span></li>
+				<li>FabLab München <span class="legend_box" style="background: #009900;"></span> <span class="legend_box" style="background: #00bb00;"></span></li>
+				<li>MuCCC <span class="legend_box" style="background: orange;"></span></li>
+				<li>Munich Maker Lab <span class="legend_box" style="background: blue;"></span></li>
+				<li>WerkBox3 <span class="legend_box" style="background: red;"></span></li>
+			</ul>
+		<p>
+		<div id='calendar'></div>
+	</div>
+</body>
+</html>
