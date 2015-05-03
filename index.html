@@ -7,15 +7,12 @@
 <script src='tools/fullcalendar/lib/moment.min.js'></script>
 <script src='tools/fullcalendar/lib/jquery.min.js'></script>
 <script src='tools/fullcalendar/fullcalendar.js'></script>
-<script type='text/javascript' src='tools/fullcalendar/gcal.js'></script>
-<script type='text/javascript' src='config.js'></script>
 <script>
 
 	$(document).ready(function() {
 
 		$('#calendar').fullCalendar({
 			eventLimit: true, // allow "more" link when too many events
-			googleCalendarApiKey: google_calendar_api_key,
 			eventSources: [
 				{
 					url: "tools/eventbrite2json.php?organizer=7227151391",
@@ -26,8 +23,7 @@
 					color: "#00bb00"
 				},
 				{
-					googleCalendarId: 'lbd0aa2rlahecp7juvp35hd0k0@group.calendar.google.com',
-					//url: "tools/parse_ics.php?url=mumalab",
+					url: "tools/parse_ics.php?url=mumalab",
 					color: "blue"
 				},
 				{

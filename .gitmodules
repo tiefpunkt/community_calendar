@@ -3,4 +3,4 @@
 	url = https://github.com/tiefpunkt/eventbrite-ics.git
 [submodule "tools/ics-parser"]
 	path = tools/ics-parser
-	url = https://github.com/MartinThoma/ics-parser.git
+	url = https://github.com/tiefpunkt/ics-parser.git
