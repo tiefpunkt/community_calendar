@@ -12,6 +12,13 @@
 	$(document).ready(function() {
 
 		$('#calendar').fullCalendar({
+			firstDay: 1, // week starts on a Monday
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			defaultView: 'month',
 			eventLimit: true, // allow "more" link when too many events
 			eventSources: [
 				{
