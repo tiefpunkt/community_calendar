@@ -79,11 +79,28 @@ def parseIcal(url):
 				event_list.append(event_data)
 
 		else:
-			event_data = {
-				"title": event.get('summary').to_ical(),
-				"start": event.get('dtstart').dt.strftime(dt_format),
-				"end": event.get('dtend').dt.strftime(dt_format)
-			}
+			dtstart = event.get('dtstart').dt
+			dtend = event.get('dtend').dt
+
+			if type(dtstart) is date:
+				event_data = {
+					"title": event.get('summary').to_ical(),
+					"start": dtstart.strftime(dt_format),
+					"end": dtend.strftime(dt_format),
+					"allDay": True
+				}
+
+			else:
+				if dtstart.tzinfo:
+					dtstart = dtstart.astimezone(tz)
+				if dtend.tzinfo:
+					dtend = dtend.astimezone(tz)
+
+				event_data = {
+					"title": event.get('summary').to_ical(),
+					"start": dtstart.strftime(dt_format),
+					"end": dtend.strftime(dt_format)
+				}
 
 			try:
 				event_data["description"] = event.get('description').to_ical()
