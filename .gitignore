@@ -2,3 +2,4 @@ wordpress
 config.js
 ._*
 .DS_Store
+logs
