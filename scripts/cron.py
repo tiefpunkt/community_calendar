@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from icalendar import Calendar
 import urllib2
 from dateutil import rrule
@@ -13,26 +16,36 @@ dt_format = "%Y-%m-%dT%H:%M:%S"
 sources = [
 		{
 			"name": "muccc",
+			"title": "MuCCC",
+			"color": "orange",
 			"type": "ics",
 			"url": "http://api.muc.ccc.de/wiki_kalender.ics"
 		},
 		{
 			"name": "werkbox",
+			"title": "WerkBox3",
+			"color": "red",
 			"type": "ics",
 			"url": "http://www.werkbox3.de/events.ics"
 		},
 		{
 			"name": "arduino_meetup",
+			"title": "Arduino Meetup",
+			"color": "grey",
 			"type": "ics",
 			"url": "http://www.meetup.com/Munchen-Arduino-Meetup/events/ical/"
 		},
 		{
 			"name":"mumalab",
+			"title":"Munich Maker Lab",
+			"color": "blue",
 			"type": "ics",
 			"url": "https://www.google.com/calendar/ical/lbd0aa2rlahecp7juvp35hd0k0%40group.calendar.google.com/public/basic.ics"
 		},
 		{
 			"name": "fablab",
+			"title": "FabLab München",
+			"color": "#009900",
 			"type": "multiple",
 			"sources": [
 				{
@@ -145,6 +158,8 @@ def getEvents(source):
 			events += getEvents(source)
 		return events
 
+frontend_sources = []
+
 for source in sources:
 	events = getEvents(source)
 
@@ -152,3 +167,14 @@ for source in sources:
 	f = open(filename, "w")
 	f.write(json.dumps(events))
 	f.close
+
+	frontend_sources.append({
+		"url": filename,
+		"title": source["title"],
+		"color": source["color"]
+	})
+
+filename = "data/_sources.json"
+f = open(filename, "w")
+f.write(json.dumps(frontend_sources))
+f.close
