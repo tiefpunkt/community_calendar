@@ -10,38 +10,23 @@
 <script>
 
 	$(document).ready(function() {
-
-		$('#calendar').fullCalendar({
-			firstDay: 1, // week starts on a Monday
-			header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
-			},
-			defaultView: 'month',
-			eventLimit: true, // allow "more" link when too many events
-			eventSources: [
-				{
-					url: "data/fablab.json",
-					color: "#009900"
+		$.getJSON("data/_sources.json", function(data) {
+			$('#calendar').fullCalendar({
+				firstDay: 1, // week starts on a Monday
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month,agendaWeek,agendaDay'
 				},
-				{
-					url: "data/mumalab.json",
-					color: "blue"
-				},
-				{
-					url: "data/muccc.json",
-					color: "orange"
-				},
-				{
-					url: "data/werkbox.json",
-					color: "red"
-				},
-				{
-					url: "data/arduino_meetup.json",
-					color: "grey"
-				}
-			]
+				defaultView: 'month',
+				eventLimit: true, // allow "more" link when too many events
+				eventSources: data
+			});
+			var legend = [];
+			$.each( data, function( key, val ) {
+				legend.push("<li>" + val["title"] + " <span class=\"legend_box\" style=\"background: " + val["color"] + ";\"></span></li>")
+			});
+			$("#legend").html(legend.join(""));
 		});
 
 	});
@@ -74,14 +59,8 @@
 		<p>Home of the Munich Maker Community</p>
 		<p>
 			Im Kalender sind bisher:
-			<ul>
-				<li>Arduino Meetup <span class="legend_box" style="background: grey;"></span></li>
-				<li>FabLab München <span class="legend_box" style="background: #009900;"></span> <span class="legend_box" style="background: #00bb00;"></span></li>
-				<li>MuCCC <span class="legend_box" style="background: orange;"></span></li>
-				<li>Munich Maker Lab <span class="legend_box" style="background: blue;"></span></li>
-				<li>WerkBox3 <span class="legend_box" style="background: red;"></span></li>
-			</ul>
-		<p>
+			<ul id="legend"></ul>
+		</p>
 		<div id='calendar'></div>
 	</div>
 </body>
