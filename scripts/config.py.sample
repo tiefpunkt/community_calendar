@@ -1,1 +1,52 @@
+# -*- coding: utf-8 -*-
+
 EVENTBRITE_OAUTH_TOKEN = "xxxxxxxxxxxx"
+
+TZ = "Europe/Berlin"
+
+SOURCES = [
+		{
+			"name": "muccc",
+			"title": "MuCCC",
+			"color": "orange",
+			"type": "ics",
+			"url": "http://api.muc.ccc.de/wiki_kalender.ics"
+		},
+		{
+			"name": "werkbox",
+			"title": "WerkBox3",
+			"color": "red",
+			"type": "ics",
+			"url": "http://www.werkbox3.de/events.ics"
+		},
+		{
+			"name": "arduino_meetup",
+			"title": "Arduino Meetup",
+			"color": "grey",
+			"type": "ics",
+			"url": "http://www.meetup.com/Munchen-Arduino-Meetup/events/ical/"
+		},
+		{
+			"name":"mumalab",
+			"title":"Munich Maker Lab",
+			"color": "blue",
+			"type": "ics",
+			"url": "https://www.google.com/calendar/ical/lbd0aa2rlahecp7juvp35hd0k0%40group.calendar.google.com/public/basic.ics"
+		},
+		{
+			"name": "fablab",
+			"title": "FabLab München",
+			"color": "#009900",
+			"type": "multiple",
+			"sources": [
+				{
+					"type": "eventbrite",
+					"organizer": "7227151391"
+				},
+				{
+					"type": "eventbrite",
+					"organizer": "7117094347"
+				}
+			]
+		}
+	]
