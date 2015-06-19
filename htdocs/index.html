@@ -8,7 +8,9 @@
 <script src='tools/fullcalendar/lib/jquery.min.js'></script>
 <script src='tools/fullcalendar/fullcalendar.js'></script>
 <script>
-
+	function dateString(d) {
+		return "" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDay();
+	}
 	$(document).ready(function() {
 		$.getJSON("data/_sources.json", function(data) {
 			$('#calendar').fullCalendar({
@@ -20,7 +22,18 @@
 				},
 				defaultView: 'month',
 				eventLimit: true, // allow "more" link when too many events
-				eventSources: data
+				eventSources: data,
+				eventClick: function(calEvent, jsEvent, view) {
+					$("#sidebar h1").html(calEvent.title);
+					if (calEvent.description) {
+						$("#sidebar #description").html(calEvent.description.replace(/(?:\r\n|\r|\n)/g, '<br>'));
+					} else {
+						$("#sidebar #description").html("");
+					};
+					$("#sidebar #dtstart").html(calEvent.start.format("YYYY-MM-DD HH:mm"));
+					$("#sidebar #dtend").html(calEvent.end.format("YYYY-MM-DD HH:mm"));
+					$("#sidebar").animate({"right":"0"},"fast");
+				}
 			});
 			var legend = [];
 			$.each( data, function( key, val ) {
@@ -28,7 +41,11 @@
 			});
 			$("#legend").html(legend.join(""));
 		});
-
+		$("#sidebar .close_button").click(function(event) {
+			event.preventDefault();
+			//$("#sidebar").hide("fast");
+			$("#sidebar").animate({"right":"-410px"},"fast");
+		});
 	});
 
 </script>
@@ -51,9 +68,38 @@
 		width: 0.9em;
 		height: 0.9em;
 	}
+
+	#sidebar {
+		background: #333345;
+		color: #fff;
+		position: fixed;
+		top: 0;
+		right: -410px;
+		bottom: 0;
+		z-index: 999;
+		padding: 0 25px;
+		width: 360px;
+	}
+
+	.close_button {
+		margin-top: 1.2em;
+		text-decoration: none;
+		color: #bbbbbb;
+		float:right;
+	}
 </style>
 </head>
 <body>
+	<div id="sidebar">
+		<a href="#" class="close_button">x</a>
+		<h1>Title</h1>
+		<p>
+			Start: <span id="dtstart"></span><br>
+			Ende: <span id="dtend"></span>
+		</p>
+		<p id="description">
+		</p>
+	</div>
 	<div id="container">
 		<h1>Munich Makes</h1>
 		<p>Home of the Munich Maker Community</p>

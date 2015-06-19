@@ -38,7 +38,7 @@ def parseIcal(url):
 				}
 
 				try:
-					event_data["description"] = event.get('description').to_ical()
+					event_data["description"] = event.get('description').to_ical().decode('string_escape').replace('\,', ',').replace('\;',';')
 				except AttributeError:
 					pass
 
@@ -69,7 +69,7 @@ def parseIcal(url):
 				}
 
 			try:
-				event_data["description"] = event.get('description').to_ical()
+				event_data["description"] = event.get('description').to_ical().decode('string_escape').replace('\,', ',').replace('\;',';')
 			except AttributeError:
 				pass
 
