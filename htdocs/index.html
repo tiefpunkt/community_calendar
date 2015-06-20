@@ -25,13 +25,24 @@
 				eventSources: data,
 				eventClick: function(calEvent, jsEvent, view) {
 					$("#sidebar h1").html(calEvent.title);
+
 					if (calEvent.description) {
 						$("#sidebar #description").html(calEvent.description.replace(/(?:\r\n|\r|\n)/g, '<br>'));
 					} else {
 						$("#sidebar #description").html("");
 					};
+
 					$("#sidebar #dtstart").html(calEvent.start.format("YYYY-MM-DD HH:mm"));
 					$("#sidebar #dtend").html(calEvent.end.format("YYYY-MM-DD HH:mm"));
+
+					if (calEvent.location) {
+						$("#sidebar #location").html(calEvent.location);
+						$("#sidebar #location_wrapper").show();
+					} else {
+						$("#sidebar #location").html(calEvent.location);
+						$("#sidebar #location_wrapper").hide();
+					}
+
 					$("#sidebar").animate({"right":"0"},"fast");
 				}
 			});
@@ -102,6 +113,7 @@
 		<div class="event_details">
 			Start: <span id="dtstart"></span><br>
 			Ende: <span id="dtend"></span>
+			<span id="location_wrapper"><br>Ort: <span id="location"></span></span>
 		</div>
 		<p id="description">
 		</p>

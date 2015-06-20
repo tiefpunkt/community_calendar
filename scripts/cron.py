@@ -13,6 +13,27 @@ import config
 dt_format = "%Y-%m-%dT%H:%M:%S"
 tz = timezone(config.TZ)
 
+def icalToString(ical_string):
+	return ical_string.decode('string_escape').replace('\,', ',').replace('\;',';')
+
+def icalToDict(event, output):
+	output["title"] = event.get('summary').to_ical()
+
+	try:
+		output["description"] = icalToString(event.get('description').to_ical())
+	except AttributeError:
+		pass
+
+	try:
+		output["location"] = icalToString(event.get('location').to_ical())
+	except AttributeError:
+		pass
+
+	try:
+		output["url"] = icalToString(event.get('url').to_ical())
+	except AttributeError:
+		pass
+
 def parseIcal(url):
 	req = urllib2.Request(url, headers={ 'User-Agent': 'Mozilla/5.0' }) #required for Meetup :(
 	response = urllib2.urlopen(req)
@@ -32,15 +53,11 @@ def parseIcal(url):
 
 			for revent in rule.between(time_min, time_max):
 				event_data = {
-					"title": event.get('summary').to_ical(),
 					"start": revent.strftime(dt_format),
 					"end": (revent + duration).strftime(dt_format)
 				}
 
-				try:
-					event_data["description"] = event.get('description').to_ical().decode('string_escape').replace('\,', ',').replace('\;',';')
-				except AttributeError:
-					pass
+				icalToDict(event, event_data)
 
 				event_list.append(event_data)
 
@@ -50,7 +67,6 @@ def parseIcal(url):
 
 			if type(dtstart) is date:
 				event_data = {
-					"title": event.get('summary').to_ical(),
 					"start": dtstart.strftime(dt_format),
 					"end": dtend.strftime(dt_format),
 					"allDay": True
@@ -63,15 +79,11 @@ def parseIcal(url):
 					dtend = dtend.astimezone(tz)
 
 				event_data = {
-					"title": event.get('summary').to_ical(),
 					"start": dtstart.strftime(dt_format),
 					"end": dtend.strftime(dt_format)
 				}
 
-			try:
-				event_data["description"] = event.get('description').to_ical().decode('string_escape').replace('\,', ',').replace('\;',';')
-			except AttributeError:
-				pass
+			icalToDict(event, event_data)
 
 			event_list.append(event_data)
 
@@ -83,18 +95,32 @@ def parseEventbrite(organizer):
 	events = eventbrite.event_search(**{'organizer.id': organizer})
 
 	event_list = []
+	venues = {}
 
 	for event in events["events"]:
 		event_data = {
 			"title": event["name"]["text"],
 			"start": event["start"]["local"],
-			"end": event["end"]["local"]
+			"end": event["end"]["local"],
+			"url": event["url"]
 		}
 
 		try:
 			event_data["description"] = event["description"]["text"]
 		except AttributeError:
 			pass
+
+		venue_id = event["venue_id"]
+		try:
+			venue_str = venues[venue_id]
+		except KeyError:
+			venue = eventbrite.get("/venues/" + venue_id)
+			venue_str = venue["name"] + ", "
+			venue_str += venue["address"]["address_1"] +", "
+			venue_str += venue["address"]["postal_code"] + " " + venue["address"]["city"]
+			venues[venue_id] = venue_str
+
+		event_data["location"] = venue_str
 
 		event_list.append(event_data)
 
