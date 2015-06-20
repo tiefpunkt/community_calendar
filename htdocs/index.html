@@ -1,112 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset='utf-8' />
-<link href='tools/fullcalendar/fullcalendar.css' rel='stylesheet' />
-<link href='tools/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
-<script src='tools/fullcalendar/lib/moment.min.js'></script>
-<script src='tools/fullcalendar/lib/jquery.min.js'></script>
-<script src='tools/fullcalendar/fullcalendar.js'></script>
-<script>
-	function dateString(d) {
-		return "" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDay();
-	}
-	$(document).ready(function() {
-		$.getJSON("data/_sources.json", function(data) {
-			$('#calendar').fullCalendar({
-				firstDay: 1, // week starts on a Monday
-				header: {
-					left: 'prev,next today',
-					center: 'title',
-					right: 'month,agendaWeek,agendaDay'
-				},
-				defaultView: 'month',
-				eventLimit: true, // allow "more" link when too many events
-				eventSources: data,
-				eventClick: function(calEvent, jsEvent, view) {
-					$("#sidebar h1").html(calEvent.title);
-
-					if (calEvent.description) {
-						$("#sidebar #description").html(calEvent.description.replace(/(?:\r\n|\r|\n)/g, '<br>'));
-					} else {
-						$("#sidebar #description").html("");
-					};
-
-					$("#sidebar #dtstart").html(calEvent.start.format("YYYY-MM-DD HH:mm"));
-					$("#sidebar #dtend").html(calEvent.end.format("YYYY-MM-DD HH:mm"));
-
-					if (calEvent.location) {
-						$("#sidebar #location").html(calEvent.location);
-						$("#sidebar #location_wrapper").show();
-					} else {
-						$("#sidebar #location").html(calEvent.location);
-						$("#sidebar #location_wrapper").hide();
-					}
-
-					$("#sidebar").animate({"right":"0"},"fast");
-				}
-			});
-			var legend = [];
-			$.each( data, function( key, val ) {
-				legend.push("<li>" + val["title"] + " <span class=\"legend_box\" style=\"background: " + val["color"] + ";\"></span></li>")
-			});
-			$("#legend").html(legend.join(""));
-		});
-		$("#sidebar .close_button").click(function(event) {
-			event.preventDefault();
-			//$("#sidebar").hide("fast");
-			$("#sidebar").animate({"right":"-410px"},"fast");
-		});
-	});
-
-</script>
-<style>
-
-	body {
-		margin: 40px 10px;
-		padding: 0;
-		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-		font-size: 14px;
-	}
-
-	#container {
-		max-width: 900px;
-		margin: 0 auto;
-	}
-
-	.legend_box {
-		display: inline-block;
-		width: 0.9em;
-		height: 0.9em;
-	}
-
-	#sidebar {
-		background: #333345;
-		color: #fff;
-		position: fixed;
-		top: 0;
-		right: -410px;
-		bottom: 0;
-		z-index: 999;
-		padding: 0 25px;
-		width: 360px;
-	}
-
-	.close_button {
-		margin-top: 1.2em;
-		text-decoration: none;
-		color: #bbbbbb;
-		float:right;
-	}
-
-	.event_details {
-		padding: 0 0 1em 0;
-		border-bottom: 1px solid #ccc;
-	}
-</style>
+	<title>Munich Makes - Community Calendar</title>
+	<meta charset='utf-8' />
+	<link href='main.css' rel='stylesheet' />
+	<link href='tools/fullcalendar/fullcalendar.css' rel='stylesheet' />
+	<link href='tools/fullcalendar/fullcalendar.print.css' rel='stylesheet' media='print' />
 </head>
 <body>
+	<!-- GitHub Ribbon in the top left corner -->
 	<a href="https://github.com/tiefpunkt/community_calendar"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/82b228a3648bf44fc1163ef44c62fcc60081495e/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png"></a>
+
+	<!-- Sidebar to display event details, normally hidden -->
 	<div id="sidebar">
 		<a href="#" class="close_button">x</a>
 		<h1>Title</h1>
@@ -118,6 +23,8 @@
 		<p id="description">
 		</p>
 	</div>
+
+	<!-- Standard content, incl. calendar -->
 	<div id="container">
 		<h1>Munich Makes</h1>
 		<p>Home of the Munich Maker Community</p>
@@ -127,5 +34,11 @@
 		</p>
 		<div id='calendar'></div>
 	</div>
+
+	<!-- scripts to be loaded after everything else is done -->
+	<script src='tools/fullcalendar/lib/moment.min.js'></script>
+	<script src='tools/fullcalendar/lib/jquery.min.js'></script>
+	<script src='tools/fullcalendar/fullcalendar.js'></script>
+	<script src='main.js'></script>
 </body>
 </html>

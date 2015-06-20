@@ -1,0 +1,41 @@
+body {
+	margin: 40px 10px;
+	padding: 0;
+	font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+	font-size: 14px;
+}
+
+#container {
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.legend_box {
+	display: inline-block;
+	width: 0.9em;
+	height: 0.9em;
+}
+
+#sidebar {
+	background: #333345;
+	color: #fff;
+	position: fixed;
+	top: 0;
+	right: -410px;
+	bottom: 0;
+	z-index: 999;
+	padding: 0 25px;
+	width: 360px;
+}
+
+.close_button {
+	margin-top: 1.2em;
+	text-decoration: none;
+	color: #bbbbbb;
+	float:right;
+}
+
+.event_details {
+	padding: 0 0 1em 0;
+	border-bottom: 1px solid #ccc;
+}
