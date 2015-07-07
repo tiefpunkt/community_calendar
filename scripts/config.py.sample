@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+ICAL_CALNAME = "Munich Makes - Community Calendar"
+
 EVENTBRITE_OAUTH_TOKEN = "xxxxxxxxxxxx"
 
 TZ = "Europe/Berlin"

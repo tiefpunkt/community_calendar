@@ -74,7 +74,11 @@ def parseIcal(url):
 
 		else:
 			dtstart = event.get('dtstart').dt
-			dtend = event.get('dtend').dt
+
+			try:
+				dtend = event.get('dtend').dt
+			except AttributeError:
+				dtend = dtstart
 
 			if type(dtstart) is date:
 				event_data = {
@@ -191,7 +195,7 @@ f.close
 cal = Calendar()
 cal.add('prodid', '-//community_calendar//tiefpunkt//')
 cal.add('version', '2.0')
-cal.add('X-WR-CALNAME', "Munich Makes - Community Calendar")
+cal.add('X-WR-CALNAME', config.ICAL_CALNAME)
 
 for event in all_events:
 	vevent = Event()

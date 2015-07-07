@@ -30,7 +30,12 @@ $(document).ready(function() {
 				};
 
 				$("#sidebar #dtstart").html(calEvent.start.format("YYYY-MM-DD HH:mm"));
-				$("#sidebar #dtend").html(calEvent.end.format("YYYY-MM-DD HH:mm"));
+
+				if (calEvent.end) {
+					$("#sidebar #dtend").html(calEvent.end.format("YYYY-MM-DD HH:mm"));
+				} else {
+					$("#sidebar #dtend").html(calEvent.start.format("YYYY-MM-DD HH:mm"));
+				}
 
 				if (calEvent.location) {
 					$("#sidebar #location").html(calEvent.location);
@@ -52,7 +57,7 @@ $(document).ready(function() {
 		});
 		$("#legend").html(legend.join(""));
 	});
-	
+
 	// Attach close action to x in top right corner of sidebar
 	$("#sidebar .close_button").click(function(event) {
 		event.preventDefault();
