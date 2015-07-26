@@ -49,7 +49,13 @@ def parseIcal(url):
 	req = urllib2.Request(url, headers={ 'User-Agent': 'Mozilla/5.0' }) #required for Meetup :(
 	response = urllib2.urlopen(req)
 	data = response.read()
-	cal = Calendar.from_ical(data)
+	
+	try:
+		cal = Calendar.from_ical(data)
+	except ValueError:
+		if not config.IGNORE_ERORS:
+			print "Error parsing feed " + url
+		raise
 
 	today = datetime.now(tz).replace(hour=0,minute=0)
 	time_min = today + timedelta(days = -60)
@@ -168,7 +174,12 @@ frontend_sources = []
 all_events = []
 
 for source in config.SOURCES:
-	events = getEvents(source)
+	try:
+		events = getEvents(source)
+	except ValueError:
+		if not config.IGNORE_ERORS:
+			print "Skipping source"
+		continue
 
 	all_events += events
 
