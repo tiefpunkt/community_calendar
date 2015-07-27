@@ -53,7 +53,7 @@ def parseIcal(url):
 	try:
 		cal = Calendar.from_ical(data)
 	except ValueError:
-		if not config.IGNORE_ERORS:
+		if not config.IGNORE_ERRORS:
 			print "Error parsing feed " + url
 		raise
 
@@ -177,7 +177,7 @@ for source in config.SOURCES:
 	try:
 		events = getEvents(source)
 	except ValueError:
-		if not config.IGNORE_ERORS:
+		if not config.IGNORE_ERRORS:
 			print "Skipping source"
 		continue
 
