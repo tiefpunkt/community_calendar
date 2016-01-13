@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # -------------------------------------------------------------
 #  Community Calendar
@@ -12,6 +12,8 @@ from datetime import datetime, timedelta, date
 from pytz import timezone
 import json
 from eventbrite import Eventbrite
+import os
+
 import config
 
 dt_format = "%Y-%m-%dT%H:%M:%S"
@@ -173,6 +175,8 @@ def getEvents(source):
 frontend_sources = []
 all_events = []
 
+directory = os.path.dirname(os.path.realpath(__file__))
+
 for source in config.SOURCES:
 	try:
 		events = getEvents(source)
@@ -184,7 +188,7 @@ for source in config.SOURCES:
 	all_events += events
 
 	filename = "data/" + source["name"] + ".json"
-	f = open(filename, "w")
+	f = open(directory + "/" + filename, "w")
 	f.write(json.dumps(events))
 	f.close
 
@@ -194,7 +198,7 @@ for source in config.SOURCES:
 		"color": source["color"]
 	})
 
-filename = "data/_sources.json"
+filename = directory + "/data/_sources.json"
 f = open(filename, "w")
 f.write(json.dumps(frontend_sources))
 f.close
@@ -232,7 +236,7 @@ for event in all_events:
 
 	cal.add_component(vevent)
 
-filename = "data/all.ics"
+filename = directory + "/data/all.ics"
 f = open(filename, "w")
 f.write(cal.to_ical())
 f.close()
