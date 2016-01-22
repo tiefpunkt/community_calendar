@@ -15,6 +15,10 @@ from eventbrite import Eventbrite
 import os
 
 import config
+import logging
+
+logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.WARN)
+logger = logging.getLogger(__name__)
 
 dt_format = "%Y-%m-%dT%H:%M:%S"
 tz = timezone(config.TZ)
@@ -49,14 +53,18 @@ def icalToDict(event, output):
 
 def parseIcal(url):
 	req = urllib2.Request(url, headers={ 'User-Agent': 'Mozilla/5.0' }) #required for Meetup :(
-	response = urllib2.urlopen(req)
+	try:
+		response = urllib2.urlopen(req)
+	except urllib2.URLError as err:
+		logger.error("Error while fetching %s: %s" % (url, err.msg))
+		raise
+
 	data = response.read()
 	
 	try:
 		cal = Calendar.from_ical(data)
 	except ValueError:
-		if not config.IGNORE_ERRORS:
-			print "Error parsing feed " + url
+		logger.error("Error parsing feed " + url)
 		raise
 
 	today = datetime.now(tz).replace(hour=0,minute=0)
@@ -180,9 +188,8 @@ directory = os.path.dirname(os.path.realpath(__file__))
 for source in config.SOURCES:
 	try:
 		events = getEvents(source)
-	except ValueError:
-		if not config.IGNORE_ERRORS:
-			print "Skipping source"
+	except:
+		logger.warn("Skipping source '%s'" % source["title"])
 		continue
 
 	all_events += events
