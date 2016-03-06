@@ -13,6 +13,7 @@ from pytz import timezone
 import json
 from eventbrite import Eventbrite
 import os
+from math import floor
 
 import config
 import logging
@@ -60,7 +61,7 @@ def parseIcal(url):
 		raise
 
 	data = response.read()
-	
+
 	try:
 		cal = Calendar.from_ical(data)
 	except ValueError:
@@ -186,18 +187,34 @@ all_events = []
 directory = os.path.dirname(os.path.realpath(__file__))
 
 for source in config.SOURCES:
+	filename = "data/" + source["name"] + ".json"
+	from_cache = False
 	try:
 		events = getEvents(source)
 	except:
-		logger.warn("Skipping source '%s'" % source["title"])
-		continue
+		logger.info("Could not read source '%s'" % source["title"])
+
+		try:
+			t = os.path.getmtime(filename)
+		except:
+			continue
+
+		mdate = datetime.fromtimestamp(t)
+		delta = datetime.now() - mdate
+		delta_hours = floor(delta.total_seconds() / 3600)
+		if delta_hours > 0 and delta_hours % 12 == 0:
+			logger.warn("Source '%s' has been unavailable for %d hours"
+					% (source["title"], delta_hours))
+		from_cache = True
+		with open(directory + "/" + filename) as data_file:
+			events = json.load(data_file)
 
 	all_events += events
 
-	filename = "data/" + source["name"] + ".json"
-	f = open(directory + "/" + filename, "w")
-	f.write(json.dumps(events))
-	f.close
+	if not from_cache:
+		f = open(directory + "/" + filename, "w")
+		f.write(json.dumps(events))
+		f.close
 
 	frontend_sources.append({
 		"url": filename,
