@@ -14,7 +14,7 @@ SOURCES = [
 			"title": "MuCCC",
 			"color": "orange",
 			"type": "ics",
-			"url": "http://api.muc.ccc.de/wiki_kalender.ics"
+			"url": "http://api.muc.ccc.de/wiki_kalender_public.ics"
 		},
 		{
 			"name": "werkbox",
