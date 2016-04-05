@@ -53,7 +53,7 @@ $(document).ready(function() {
 		// Render calendar legend
 		var legend = [];
 		$.each( data, function( key, val ) {
-			legend.push("<li>" + val["title"] + " <span class=\"legend_box\" style=\"background: " + val["color"] + ";\"></span></li>")
+			legend.push("<li><span class=\"legend_box\" style=\"background: " + val["color"] + ";\"></span> " + val["title"] + "</li>")
 		});
 		$("#legend").html(legend.join(""));
 	});

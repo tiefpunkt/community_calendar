@@ -1,8 +1,10 @@
 body {
 	margin: 40px 10px;
 	padding: 0;
-	font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+	font-family: "Helvetica Neue",Helvetica;
 	font-size: 14px;
+	background: #103066;
+    color: #ffffff;
 }
 
 #container {
@@ -10,10 +12,40 @@ body {
 	margin: 0 auto;
 }
 
+.logo {
+	max-height: 120px;
+	border-radius: 5px;
+	float: left;
+	margin: 0 1.2em 1em 0;
+}
+
+#legend {
+	float: right;
+	background: rgba(0,0,0,0.4);
+	padding: 1em;
+	border-radius: 5px;
+	list-style-type: none;
+	margin: 0;
+}
+
 .legend_box {
 	display: inline-block;
 	width: 0.9em;
 	height: 0.9em;
+	margin-right: 0.4em;
+}
+
+a {
+	color: #999;
+}
+
+#calendar {
+	clear: both;
+	background: #ffffff;
+	padding: 1.5em;
+	border-radius: 5px;
+	border: 1px solid #000;
+	color: #000000;
 }
 
 #sidebar {
@@ -38,4 +70,16 @@ body {
 .event_details {
 	padding: 0 0 1em 0;
 	border-bottom: 1px solid #ccc;
+}
+
+.fc-day-number {
+	font-weight: lighter;
+}
+
+.fc th {
+	font-weight: normal;
+}
+
+.fc-toolbar h2 {
+	font-weight: normal;
 }
