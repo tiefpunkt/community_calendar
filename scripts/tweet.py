@@ -58,7 +58,7 @@ for source in config.SOURCES:
 			if len(event['title']) > max_length:
 				title = u"%s..." % event['title'][:max_length-3]
 			else:
-				title = event['title'].decode('utf-8')
+				title = u"%s" % event['title']
 
 			if "url" in event:
 				text = u"%s: %s @ %s %s" % (start_out, title, source['title'].decode('utf-8'), event['url'])
