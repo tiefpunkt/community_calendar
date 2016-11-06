@@ -87,7 +87,7 @@ def parseIcal(url):
 
 				icalToDict(event, event_data)
 
-				event_list.append(event_data)
+				event_list.append((event, event_data))
 
 		else:
 			dtstart = event.get('dtstart').dt
@@ -117,9 +117,34 @@ def parseIcal(url):
 
 			icalToDict(event, event_data)
 
-			event_list.append(event_data)
+			event_list.append((event, event_data))
 
+	# Function for reduce operation below
+	def check_for_modified_reoccurences(old_items, new_item):
+		# check all events for duplicate UIDs
+		for n, item in enumerate(old_items):
+			# ignore events not on the same day
+			if datetime.strptime(item[1]["start"], dt_format).date() != datetime.strptime(new_item[1]["start"], dt_format).date():
+				continue
+			if item[0].get('uid') == new_item[0].get('uid'):
+				# Duplicate UID found
+				# The original item has no "RECURRENCE-ID" set, the updated one does
+				if "RECURRENCE-ID" in new_item[0]:
+					# new item the updated one
+					# remove the old entry, fill in the new one
+					del old_items[n]
+					old_items.append(new_item)
+				# if the old one is the updated one, just ignore the new item and move on
+				return old_items
 
+		# first item, or simply duplicate UIDs found
+		old_items.append(new_item)
+		return old_items
+
+	# filter modified recurrences
+	event_list = reduce(check_for_modified_reoccurences, event_list, [])
+	# pass on only the second part of the tuples, the event_data
+	event_list = map(lambda x: x[1], event_list)
 	return event_list
 
 # -------------------------------------------------------------
