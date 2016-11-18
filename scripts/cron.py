@@ -175,10 +175,8 @@ def parseEventbrite(organizer):
 		try:
 			venue_str = venues[venue_id]
 		except KeyError:
-			venue = eventbrite.get("/venues/" + venue_id)
-			venue_str = venue["name"] + ", "
-			venue_str += venue["address"]["address_1"] +", "
-			venue_str += venue["address"]["postal_code"] + " " + venue["address"]["city"]
+			venue = eventbrite.get("/venues/%s" % venue_id)
+			venue_str = "%s, %s, %s %s" % (venue["name"], venue["address"]["address_1"], venue["address"]["postal_code"], venue["address"]["city"])
 			venues[venue_id] = venue_str
 
 		event_data["location"] = venue_str
@@ -216,8 +214,8 @@ for source in config.SOURCES:
 	from_cache = False
 	try:
 		events = getEvents(source)
-	except:
-		logger.info("Could not read source '%s'" % source["title"])
+	except Exception as e:
+		logger.warn("Could not read source '%s': %s" % (source["title"], e))
 
 		try:
 			t = os.path.getmtime(filename)
