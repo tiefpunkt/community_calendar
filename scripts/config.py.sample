@@ -52,12 +52,21 @@ SOURCES = [
 					"organizer": "7117094347"
 				}
 			]
+		},
+		{
+			"name": "importexport",
+			"title": "Import Export",
+			"color": "red",
+			"type": "facebook",
+			"page_id": "impex.muc",
+			"website": "http://www.import-export.cc/"
 		}
 	]
 
 # Twitter
 DAYS_AHEAD=1
 
+TWITTER_ENABLED = True
 TWITTER_CONSUMER_KEY = "xxx"
 TWITTER_CONSUMER_SECRET = "xxx"
 TWITTER_ACCESS_KEY = "xxx"

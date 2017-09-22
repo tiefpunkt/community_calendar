@@ -4,6 +4,7 @@
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta, date
 from pytz import timezone
 import tweepy
@@ -21,6 +22,10 @@ def tweet(status):
 
 logging.basicConfig(filename='tweet.log', format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+if config.TWITTER_ENABLED != True:
+	logger.info("Twitter propagation not enabled.")
+	sys.exit(0)
 
 directory = os.path.dirname(os.path.realpath(__file__))
 all_events = []

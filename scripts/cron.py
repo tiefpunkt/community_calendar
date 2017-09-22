@@ -185,6 +185,45 @@ def parseEventbrite(organizer):
 
 	return event_list
 
+def parseFacebookPage(pageid):
+	url = "https://graph.facebook.com/v2.10/%s/events?time_filter=upcoming&access_token=%s" % (pageid, config.FACEBOOK_TOKEN)
+	req = urllib2.Request(url)
+	try:
+		response = urllib2.urlopen(req)
+	except urllib2.URLError as err:
+		logger.error("Error while fetching %s: %s" % (url, err.msg))
+		raise
+
+	data_raw = response.read()
+	data = json.loads(data_raw)
+
+	event_list = []
+
+	for fb_event in data["data"]:
+		start_time, _ = fb_event["start_time"].split('+')
+		end_time, _ = fb_event["end_time"].split('+')
+		try:
+			location = "%s (%s, %s %s)" % (
+				fb_event["place"]["name"],
+				fb_event["place"]["location"]["street"],
+				fb_event["place"]["location"]["zip"],
+				fb_event["place"]["location"]["city"])
+		except:
+			location = ""
+
+		event_data = {
+			"title": fb_event["name"],
+			"description": fb_event["description"],
+			"start": start_time,
+			"end": end_time,
+			"location": location,
+			"url": fb_event["id"]
+		}
+
+		event_list.append(event_data)
+
+	return event_list
+
 # -------------------------------------------------------------
 #  parse an event source
 # -------------------------------------------------------------
@@ -194,6 +233,8 @@ def getEvents(source):
 		return parseEventbrite(source["organizer"])
 	elif source["type"] == "ics":
 		return parseIcal(source["url"])
+	elif source["type"] == "facebook":
+		return parseFacebookPage(source["page_id"])
 	elif source["type"] == "multiple":
 		events = []
 		for source in source["sources"]:
