@@ -209,7 +209,10 @@ def parseFacebookPage(pageid):
 				fb_event["place"]["location"]["zip"],
 				fb_event["place"]["location"]["city"])
 		except:
-			location = ""
+			try:
+				location = fb_event["place"]["name"]
+			except:
+				location = ""
 
 		event_data = {
 			"title": fb_event["name"],
@@ -217,7 +220,7 @@ def parseFacebookPage(pageid):
 			"start": start_time,
 			"end": end_time,
 			"location": location,
-			"url": fb_event["id"]
+			"url": "https://www.facebook.com/events/%s" % fb_event["id"]
 		}
 
 		event_list.append(event_data)
