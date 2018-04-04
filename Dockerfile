@@ -11,7 +11,7 @@ RUN pip install --upgrade -r /app/scripts/requirements.txt
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN rm /app/htdocs/data && ln -s /data/config.py /app/scripts/config.py
+RUN rm /app/htdocs/data; rm /app/scripts/config.py; ln -s /data/config.py /app/scripts/config.py
 
 COPY nginx_site.conf /etc/nginx/sites-enabled/default
 

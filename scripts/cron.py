@@ -14,6 +14,11 @@ import json
 from eventbrite import Eventbrite
 import os
 from math import floor
+from dateutil.parser import parse
+
+# Microdata
+import microdata
+from urlparse import urljoin
 
 import config
 import logging
@@ -201,7 +206,13 @@ def parseFacebookPage(pageid):
 
 	for fb_event in data["data"]:
 		start_time, _ = fb_event["start_time"].split('+')
-		end_time, _ = fb_event["end_time"].split('+')
+		try:
+			end_time, _ = fb_event["end_time"].split('+')
+		except:
+			# Some events dont have an endtime
+			end_time_tmp = parse(start_time) + timedelta(hours = 1)
+			end_time = end_time_tmp.strftime(dt_format)
+
 		try:
 			location = "%s (%s, %s %s)" % (
 				fb_event["place"]["name"],
@@ -222,7 +233,53 @@ def parseFacebookPage(pageid):
 			"location": location,
 			"url": "https://www.facebook.com/events/%s" % fb_event["id"]
 		}
+		
+		if "event_times" in fb_event:
+			for event_time in fb_event["event_times"]:
+				event_data_rec = event_data.copy()
+				event_data_rec["url"] = "https://www.facebook.com/events/%s" % event_time["id"]
+				event_data_rec["start"], _ = event_time["start_time"].split('+')
+				try:
+					event_data_rec["end"], _ = event_time["end_time"].split('+')
+				except:
+					end_time_tmp = parse(event_data_rec["start"]) + timedelta(hours = 1)
+					event_data_rec["end"] = end_time_tmp.strftime(dt_format)
+				event_list.append(event_data_rec)
+		else:
+			event_list.append(event_data)
 
+	return event_list
+
+def parseMicrodata(url):
+	req = urllib2.Request(url)
+	try:
+		response = urllib2.urlopen(req)
+	except urllib2.URLError as err:
+		logger.error("Error while fetching %s: %s" % (url, err.msg))
+		raise
+
+	items = microdata.get_items(response)
+
+	event_list = []
+
+	for ev in filter(lambda x: microdata.URI("http://schema.org/Event") in x.itemtype, items):
+		start = datetime.strptime(ev.startdate, "%Y-%m-%dT%H:%M:%SZ")
+		start = start.replace(tzinfo=timezone("UTC")).astimezone(tz)
+
+		if (ev.enddate):
+			end = datetime.strptime(ev.startdate, "%Y-%m-%dT%H:%M:%SZ")
+			end = end.replace(tzinfo=timezone("UTC"))
+		else:
+			end = start + timedelta(hours = 1)
+
+		event_data = {
+			"title": ev.name,
+			"description": ev.name,
+			"start": start.strftime(dt_format),
+			"end": end.strftime(dt_format),
+			"location": ev.location.name,
+			"url": urljoin (url, str(ev.url))
+		}
 		event_list.append(event_data)
 
 	return event_list
@@ -238,6 +295,8 @@ def getEvents(source):
 		return parseIcal(source["url"])
 	elif source["type"] == "facebook":
 		return parseFacebookPage(source["page_id"])
+	elif source["type"] == "microdata":
+		return parseMicrodata(source["url"])
 	elif source["type"] == "multiple":
 		events = []
 		for source in source["sources"]:
