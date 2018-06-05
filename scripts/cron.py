@@ -20,6 +20,12 @@ from dateutil.parser import parse
 import microdata
 from urlparse import urljoin
 
+# FB Fallback
+import re
+from bs4 import BeautifulSoup
+import requests
+import dateparser
+
 import config
 import logging
 
@@ -233,7 +239,7 @@ def parseFacebookPage(pageid):
 			"location": location,
 			"url": "https://www.facebook.com/events/%s" % fb_event["id"]
 		}
-		
+
 		if "event_times" in fb_event:
 			for event_time in fb_event["event_times"]:
 				event_data_rec = event_data.copy()
@@ -248,6 +254,56 @@ def parseFacebookPage(pageid):
 		else:
 			event_list.append(event_data)
 
+	if len(event_list) == 0:
+		event_list=parseFacebookPageFallback(pageid)
+
+	return event_list
+
+def parseFacebookPageFallback(pageid):
+	url="https://mbasic.facebook.com/%s/events/" % pageid
+	user_agent = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36', "accept-language": "de-DE,de"}
+	ses = requests.Session()
+	ses.headers = user_agent
+	res = ses.get(url)
+	c = BeautifulSoup(res.content,"html.parser")
+	events = c.find_all("a", {"href":re.compile("/events/.*")})
+	event_list = []
+	for event in events:
+		try:
+			url = "https://mbasic.facebook.com%s" % event["href"]
+			res = ses.get(url)
+			c = BeautifulSoup(res.content,"html.parser")
+			title = c.title.text
+			times = c.find("div",{"title":re.compile(".*UTC\+\d\d")})["title"]
+			m = re.match("(\w*), (\d*)\. (\w*) (\S*) - (\S*) (UTC\+\d\d)", times)
+			if m:
+				start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(6)))
+				end = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(5), m.group(6)))
+			else:
+				m = re.match("(\w*), (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+				start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)))
+				end = start + timedelta(hours = 1)
+		except Exception as e:
+			print e
+			continue
+		id = re.match("/events/(\d*)",event["href"]).group(1)
+		event_data = {
+			"title": title,
+			#"description": "",
+			"start": start.strftime(dt_format),
+			"end": end.strftime(dt_format),
+			#"location": location,
+			#"url": url
+			"url": "https://www.facebook.com/events/%s" % id
+		}
+		#print ("* %s (%s)" % (event_data["title"], id))
+
+		event_list.append(event_data)
+
+	filename = "debug.%s.html" % pageid
+	f = open(filename, "w")
+	f.write(res.content)
+	f.close()
 	return event_list
 
 def parseMicrodata(url):
@@ -294,7 +350,7 @@ def getEvents(source):
 	elif source["type"] == "ics":
 		return parseIcal(source["url"])
 	elif source["type"] == "facebook":
-		return parseFacebookPage(source["page_id"])
+		return parseFacebookPageFallback(source["page_id"])
 	elif source["type"] == "microdata":
 		return parseMicrodata(source["url"])
 	elif source["type"] == "multiple":
@@ -319,7 +375,10 @@ for source in config.SOURCES:
 		events = getEvents(source)
 	except Exception as e:
 		logger.warn("Could not read source '%s': %s" % (source["title"], e))
+		events = []
 
+	if len(events) == 0:
+		logger.warn("No events from API for '%s'" % (source["title"]))
 		try:
 			t = os.path.getmtime(filename)
 		except:
