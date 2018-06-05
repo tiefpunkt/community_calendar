@@ -1,3 +1,6 @@
+beautifulsoup4==4.6.0
+bs4==0.0.1
+dateparser==0.7.0
 eventbrite==3.1.0
 html5lib==0.999999999
 icalendar==3.9.0
@@ -5,8 +8,10 @@ microdata==0.6.1
 oauthlib==1.0.3
 python-dateutil==2.4.2
 pytz==2015.4
+regex==2018.2.21
 requests==2.7.0
 requests-oauthlib==0.6.1
 six==1.9.0
 tweepy==3.5.0
+tzlocal==1.5.1
 webencodings==0.5.1
