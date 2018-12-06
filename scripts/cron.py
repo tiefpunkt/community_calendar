@@ -260,6 +260,62 @@ def parseFacebookPage(pageid):
 	return event_list
 
 def parseFacebookPageFallback(pageid):
+
+	def _parseEventPages(event_urls):
+		event_list = []
+		for url in event_urls:
+			try:
+				res = ses.get(url)
+				c = BeautifulSoup(res.content,"html.parser")
+				title = c.title.text
+				subevents = c.find_all("a",{"href":re.compile("event_time_id=\d*")})
+
+				if subevents:
+					logger.warning("[%s] %s has subevents" % (pageid,title))
+					subevent_urls = ["https://mbasic.facebook.com%s" % subevent["href"] for subevent in subevents]
+
+					subevent_list = _parseEventPages(subevent_urls)
+					event_list += subevent_list
+					continue
+
+				times = c.find("div",{"title":re.compile(".*UTC\+\d\d")})["title"]
+				#m = re.match("(\w*), (\d*)\. (\w*) (\S*) - (\S*) (UTC\+\d\d)", times)
+				m = re.match("(\w*), (\d*)\. (\w* \d*) von (\S*) bis (\S*) (UTC\+\d\d)", times)
+				if m:
+					start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(6)))
+					end = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(5), m.group(6)))
+				else:
+					m = re.match("(\w*), (\d* \w*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+					if m:
+						start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)))
+						end = start + timedelta(hours = 1)
+					else:
+						m = re.match("(\d*)\. (\w*) um (\S*) . (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+						if m:
+							start = dateparser.parse("%s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(7)))
+							end = dateparser.parse("%s. %s %s %s00" % (m.group(4), m.group(5), m.group(6), m.group(7)))
+						else:
+							logger.error("[%s] %s does not match time filter" % (pageid,title))
+							continue
+			except Exception as e:
+				logger.error("[%s] %s" % (pageid,e))
+				continue
+			id = re.match("/events/(\d*)",event["href"]).group(1)
+			event_data = {
+				"title": title,
+				#"description": "",
+				"start": start.strftime(dt_format),
+				"end": end.strftime(dt_format),
+				#"location": location,
+				#"url": url
+				"url": "https://www.facebook.com/events/%s" % id
+			}
+			#print ("* %s (%s)" % (event_data["title"], id))
+
+			event_list.append(event_data)
+
+		return event_list
+
 	url="https://mbasic.facebook.com/%s/events/" % pageid
 	user_agent = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36', "accept-language": "de-DE,de"}
 	ses = requests.Session()
@@ -267,38 +323,9 @@ def parseFacebookPageFallback(pageid):
 	res = ses.get(url)
 	c = BeautifulSoup(res.content,"html.parser")
 	events = c.find_all("a", {"href":re.compile("/events/.*")})
-	event_list = []
-	for event in events:
-		try:
-			url = "https://mbasic.facebook.com%s" % event["href"]
-			res = ses.get(url)
-			c = BeautifulSoup(res.content,"html.parser")
-			title = c.title.text
-			times = c.find("div",{"title":re.compile(".*UTC\+\d\d")})["title"]
-			m = re.match("(\w*), (\d*)\. (\w*) (\S*) - (\S*) (UTC\+\d\d)", times)
-			if m:
-				start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(6)))
-				end = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(5), m.group(6)))
-			else:
-				m = re.match("(\w*), (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
-				start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)))
-				end = start + timedelta(hours = 1)
-		except Exception as e:
-			print e
-			continue
-		id = re.match("/events/(\d*)",event["href"]).group(1)
-		event_data = {
-			"title": title,
-			#"description": "",
-			"start": start.strftime(dt_format),
-			"end": end.strftime(dt_format),
-			#"location": location,
-			#"url": url
-			"url": "https://www.facebook.com/events/%s" % id
-		}
-		#print ("* %s (%s)" % (event_data["title"], id))
+	event_urls = ["https://mbasic.facebook.com%s" % event["href"] for event in events]
 
-		event_list.append(event_data)
+	event_list = _parseEventPages(event_urls)
 
 	filename = "debug.%s.html" % pageid
 	f = open(filename, "w")
