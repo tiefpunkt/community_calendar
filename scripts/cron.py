@@ -87,7 +87,16 @@ def parseIcal(url):
 
 	for event in cal.walk('vevent'):
 		if "rrule" in event:
-			rule = rrule.rrulestr(event.get('rrule').to_ical(), dtstart=event.get('dtstart').dt)
+			rule = rrule.rruleset()
+                        rule.rrule(rrule.rrulestr(event.get('rrule').to_ical(), dtstart=event.get('dtstart').dt))
+                        
+                        if "exdate" in event:
+                            exdates = event.get("exdate")
+                            if not isinstance(exdates, list):
+                                exdates = [exdates]
+                            for exdate in exdates:
+                                rule.exdate(exdate.dts[0].dt)
+
 			duration = event.get('dtend').dt - event.get('dtstart').dt
 
 			for revent in rule.between(time_min, time_max):
