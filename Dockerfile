@@ -3,9 +3,11 @@ FROM python:2.7
 RUN apt-get update && \
   apt-get install -y nginx cron --no-install-recommends
 
-COPY . /app
+COPY scripts/requirements.txt /app/scripts/requirements.txt
 
 RUN pip install --upgrade -r /app/scripts/requirements.txt
+
+COPY . /app
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log

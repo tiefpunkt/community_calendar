@@ -48,10 +48,13 @@ with open(filename) as data_file:
 
 for source in config.SOURCES:
 	events = []
-	with open("%s/data/%s.json" % (directory, source['name'])) as data_file:
-		events = json.load(data_file)
-		all_events += events
-		logger.debug("loading %s" % source['title'])
+	try:
+		with open("%s/data/%s.json" % (directory, source['name'])) as data_file:
+			events = json.load(data_file)
+			all_events += events
+			logger.debug("loading %s" % source['title'])
+	except:
+		continue
 
 	for event in events:
 		dt_start = datetime.strptime(event['start'], dt_format_json).replace(tzinfo = tz)

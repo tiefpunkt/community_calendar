@@ -299,17 +299,23 @@ def parseFacebookPageFallback(pageid):
 						start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)))
 						end = start + timedelta(hours = 1)
 					else:
-						m = re.match("(\d*)\. (\w*) um (\S*) . (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+						# e.g. "Freitag, 20. September 2019 um 12:00 UTC+02"
+						m = re.match("(\w*), (\d*)\. (\w*) (\w*) um (\S*) (UTC\+\d\d)", times)
 						if m:
-							start = dateparser.parse("%s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(7)))
-							end = dateparser.parse("%s. %s %s %s00" % (m.group(4), m.group(5), m.group(6), m.group(7)))
+							start = dateparser.parse("%s, %s. %s %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)))
+	                                                end = start + timedelta(hours = 1)
 						else:
-							logger.error("[%s] %s does not match time filter" % (pageid,title))
-							continue
+							m = re.match("(\d*)\. (\w*) um (\S*) . (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+							if m:
+								start = dateparser.parse("%s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(7)))
+								end = dateparser.parse("%s. %s %s %s00" % (m.group(4), m.group(5), m.group(6), m.group(7)))
+							else:
+								logger.error("[%s] %s does not match time filter" % (pageid,title))
+								continue
+				id = re.search("/events/(\d*)",url).group(1)
 			except Exception as e:
-				logger.error("[%s] %s" % (pageid,e))
+				logger.error("[%s] %s (%s)" % (pageid,e,url))
 				continue
-			id = re.match("/events/(\d*)",event["href"]).group(1)
 			event_data = {
 				"title": title,
 				#"description": "",
