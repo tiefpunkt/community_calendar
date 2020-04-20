@@ -1,7 +1,7 @@
-FROM python:2.7
+FROM python:3
 
 RUN apt-get update && \
-  apt-get install -y nginx cron --no-install-recommends
+  apt-get install -y nginx cron libgirepository1.0-dev --no-install-recommends
 
 COPY scripts/requirements.txt /app/scripts/requirements.txt
 

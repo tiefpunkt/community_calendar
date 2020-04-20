@@ -60,7 +60,7 @@ for source in config.SOURCES:
 		dt_start = datetime.strptime(event['start'], dt_format_json).replace(tzinfo = tz)
 
 		if dt_start >= time_min and dt_start < time_max:
-			start_out = dt_start.strftime(dt_format_twitter).decode('utf-8')
+			start_out = dt_start.strftime(dt_format_twitter)
 
 			max_length = 140 - 23 - 6 - 16 - len(source['title'])
 			if len(event['title']) > max_length:
@@ -69,11 +69,11 @@ for source in config.SOURCES:
 				title = u"%s" % event['title']
 
 			if "url" in event:
-				text = u"%s: %s @ %s %s" % (start_out, title, source['title'].decode('utf-8'), event['url'])
+				text = u"%s: %s @ %s %s" % (start_out, title, source['title'], event['url'])
 			elif "website" in source:
-				text = u"%s: %s @ %s %s" % (start_out, title, source['title'].decode('utf-8'), source['website'])
+				text = u"%s: %s @ %s %s" % (start_out, title, source['title'], source['website'])
 			else:
-				text = u"%s: %s @ %s" % (start_out, title, source['title'].decode('utf-8'))
+				text = u"%s: %s @ %s" % (start_out, title, source['title'])
 			tweet(text)
 
 logger.debug("loaded %s events" % len(all_events))
