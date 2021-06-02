@@ -30,5 +30,5 @@ SecretStorage==2.3.1
 six==1.14.0
 tweepy==3.8.0
 tzlocal==1.5.1
-urllib3==1.25.9
+urllib3==1.26.5
 webencodings==0.5.1
