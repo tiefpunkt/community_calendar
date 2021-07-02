@@ -93,7 +93,7 @@ def parseIcal(url):
         if "rrule" in event:
             rule = rrule.rruleset()
             rule.rrule(rrule.rrulestr(event.get('rrule').to_ical().decode("utf-8"), dtstart=event.get('dtstart').dt))
-                        
+
             if "exdate" in event:
                 exdates = event.get("exdate")
                 if not isinstance(exdates, list):
@@ -177,11 +177,18 @@ def parseIcal(url):
 
 def parseEventbrite(organizer):
     eventbrite = Eventbrite(config.EVENTBRITE_OAUTH_TOKEN)
-    events = eventbrite.get_organizer_events(organizer)
+    events = []
+
+    data = eventbrite.get_organizer_events(organizer)
+    events = events + data["events"]
+
+    while data["pagination"]["has_more_items"]:
+        data = eventbrite.get_organizer_events(organizer, continuation=data["pagination"]["continuation"])
+        events = events + data["events"]
 
     event_list = []
     venues = {}
-    for event in events["events"]:
+    for event in events:
         event_data = {
             "title": event["name"]["text"],
             "start": event["start"]["local"],
@@ -195,12 +202,16 @@ def parseEventbrite(organizer):
             pass
 
         venue_id = event["venue_id"]
-        try:
+        if venue_id in venues:
             venue_str = venues[venue_id]
-        except KeyError:
-            venue = eventbrite.get("/venues/%s" % venue_id)
-            venue_str = "%s, %s, %s %s" % (venue["name"], venue["address"]["address_1"], venue["address"]["postal_code"], venue["address"]["city"])
+        else:
+            try:
+                venue = eventbrite.get("/venues/%s" % venue_id)
+                venue_str = "%s, %s, %s %s" % (venue["name"], venue["address"]["address_1"], venue["address"]["postal_code"], venue["address"]["city"])
+            except:
+                venue_str = ""
             venues[venue_id] = venue_str
+
 
         event_data["location"] = venue_str
 
@@ -397,7 +408,8 @@ def getEvents(source):
     elif source["type"] == "ics":
         return parseIcal(source["url"])
     elif source["type"] == "facebook":
-        return parseFacebookPageFallback(source["page_id"])
+        return []
+        #return parseFacebookPageFallback(source["page_id"])
     elif source["type"] == "microdata":
         return parseMicrodata(source["url"])
     elif source["type"] == "multiple":
