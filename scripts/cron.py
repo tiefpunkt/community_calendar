@@ -374,26 +374,35 @@ def parseMicrodata(url):
 
     items = microdata.get_items(response)
 
+    logger.debug("Found %s microdata items" % len(items))
+
     event_list = []
 
-    for ev in [x for x in items if microdata.URI("http://schema.org/Event") in x.itemtype]:
-        start = datetime.strptime(ev.startdate, "%Y-%m-%dT%H:%M:%SZ")
-        start = start.replace(tzinfo=timezone("UTC")).astimezone(tz)
+    for ev in [x for x in items if microdata.URI("http://schema.org/Event") in x.itemtype or microdata.URI("https://schema.org/Event") in x.itemtype]:
+        try:
+            #start = datetime.strptime(ev.startDate, "%Y-%m-%dT%H:%M:%SZ")
+            start = parse(ev.startDate)
+            #start = start.replace(tzinfo=timezone("UTC")).astimezone(tz)
 
-        if (ev.enddate):
-            end = datetime.strptime(ev.startdate, "%Y-%m-%dT%H:%M:%SZ")
-            end = end.replace(tzinfo=timezone("UTC"))
-        else:
-            end = start + timedelta(hours = 1)
+            if (ev.endDate):
+                #end = datetime.strptime(ev.endDate, "%Y-%m-%dT%H:%M:%SZ")
+                end = parse(ev.endDate)
+                #end = end.replace(tzinfo=timezone("UTC"))
+            else:
+                end = start + timedelta(hours = 1)
 
-        event_data = {
-            "title": ev.name,
-            "description": ev.name,
-            "start": start.strftime(dt_format),
-            "end": end.strftime(dt_format),
-            "location": ev.location.name,
-            "url": urljoin (url, str(ev.url))
-        }
+            event_data = {
+                "title": ev.name,
+                "description": ev.name,
+                "start": start.strftime(dt_format),
+                "end": end.strftime(dt_format),
+                "location": ev.location.name,
+                "url": urljoin (url, str(ev.url))
+            }
+        except Exception as err:
+            logger.error("Error parsing MicroData event: %s" % err)
+            continue
+
         event_list.append(event_data)
 
     return event_list
@@ -437,7 +446,7 @@ for source in config.SOURCES:
         traceback.print_exc()
         events = []
 
-    if len(events) == 0:
+    if not events or len(events) == 0:
         logger.warning("No events from API for '%s'" % (source["title"]))
         try:
             t = os.path.getmtime(filename)
