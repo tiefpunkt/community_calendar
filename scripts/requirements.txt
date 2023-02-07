@@ -4,7 +4,7 @@ bs4==0.0.1
 certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.6.1
+cryptography==39.0.1
 dateparser==0.7.0
 entrypoints==0.3
 eventbrite==3.3.5
