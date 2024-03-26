@@ -4,6 +4,7 @@
 env | grep PATH > /tmp/crontab
 echo "20 * * * * 	python /app/scripts/cron.py" >> /tmp/crontab
 echo "23 11 * * * 	python /app/scripts/tweet.py" >> /tmp/crontab
+echo "23 11 * * *       python /app/scripts/toot.py" >> /tmp/crontab
 crontab /tmp/crontab
 rm /tmp/crontab
 
