@@ -1,11 +1,13 @@
 asn1crypto==0.24.0
 beautifulsoup4==4.6.0
+blurhash==1.1.4
 bs4==0.0.1
 certifi==2020.4.5.1
 cffi==1.14.0
 chardet==3.0.4
 cryptography==2.6.1
 dateparser==0.7.0
+decorator==5.1.1
 entrypoints==0.3
 eventbrite==3.3.5
 html5lib==0.999999999
@@ -13,6 +15,7 @@ icalendar==3.9.0
 idna==2.8
 keyring==17.1.1
 keyrings.alt==3.1.1
+Mastodon.py==1.8.1
 microdata==0.8.0
 oauthlib==3.1.0
 pycairo==1.19.1
@@ -21,6 +24,7 @@ pycrypto==2.6.1
 PyGObject==3.46.0
 PySocks==1.7.1
 python-dateutil==2.8.1
+python-magic==0.4.27
 pytz==2015.4
 pyxdg==0.25
 regex==2018.2.21
