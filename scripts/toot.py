@@ -78,9 +78,9 @@ for source_name, source_config in config.SOURCES.items():
 			else:
 				title = u"%s" % event['title']
 
-			if "url" in event:
+			if event.get("url"):
 				text = u"%s: %s @ %s %s" % (start_out, title, source_config['title'], event['url'])
-			elif "website" in source_config:
+			elif source_config.get("website"):
 				text = u"%s: %s @ %s %s" % (start_out, title, source_config['title'], source_config['website'])
 			else:
 				text = u"%s: %s @ %s" % (start_out, title, source_config['title'])
