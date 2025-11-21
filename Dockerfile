@@ -13,7 +13,7 @@ COPY . /app
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN rm /app/htdocs/data; rm /app/scripts/config.py; ln -s /data/config.py /app/scripts/config.py
+RUN rm /app/htdocs/data; rm /app/scripts/config.py; ln -s /data/config.yaml /app/scripts/config.yaml
 
 COPY nginx_site.conf /etc/nginx/sites-enabled/default
 
