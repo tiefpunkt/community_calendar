@@ -56,13 +56,13 @@ mastodon = Mastodon(
 with open(filename) as data_file:
 	sources = json.load(data_file)
 
-for source in config.SOURCES:
+for source_name, source_config in config.SOURCES.items():
 	events = []
 	try:
-		with open("%s/data/%s.json" % (directory, source['name'])) as data_file:
+		with open("%s/data/%s.json" % (directory, source_name)) as data_file:
 			events = json.load(data_file)
 			all_events += events
-			logger.debug("loading %s" % source['title'])
+			logger.debug("loading %s" % source_config['title'])
 	except:
 		continue
 
@@ -72,18 +72,18 @@ for source in config.SOURCES:
 		if dt_start >= time_min and dt_start < time_max:
 			start_out = dt_start.strftime(dt_format_twitter)
 
-			max_length = 140 - 23 - 6 - 16 - len(source['title'])
+			max_length = 140 - 23 - 6 - 16 - len(source_config['title'])
 			if len(event['title']) > max_length:
 				title = u"%s..." % event['title'][:max_length-3]
 			else:
 				title = u"%s" % event['title']
 
 			if "url" in event:
-				text = u"%s: %s @ %s %s" % (start_out, title, source['title'], event['url'])
-			elif "website" in source:
-				text = u"%s: %s @ %s %s" % (start_out, title, source['title'], source['website'])
+				text = u"%s: %s @ %s %s" % (start_out, title, source_config['title'], event['url'])
+			elif "website" in source_config:
+				text = u"%s: %s @ %s %s" % (start_out, title, source_config['title'], source_config['website'])
 			else:
-				text = u"%s: %s @ %s" % (start_out, title, source['title'])
+				text = u"%s: %s @ %s" % (start_out, title, source_config['title'])
 			toot(text)
 
 logger.debug("loaded %s events" % len(all_events))
