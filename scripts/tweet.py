@@ -9,8 +9,17 @@ from datetime import datetime, timedelta, date
 from pytz import timezone
 import tweepy
 import logging
+import yaml
+from argparse import Namespace
 
-import config
+def loadConfig():
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/config.yaml', 'r') as ymlfile:
+        cfg = yaml.safe_load(ymlfile)
+    
+    ns = Namespace(**cfg)
+    return ns
+
+config = loadConfig()
 
 def tweet(status):
 	logger.info("sending tweet (%s): %s" % (len(status), status))
