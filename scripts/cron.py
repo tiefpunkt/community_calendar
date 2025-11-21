@@ -5,6 +5,8 @@
 #  Cron job to generate json files for event sources
 # -------------------------------------------------------------
 
+from icalevents.icalevents import events as iCalEvents
+
 from icalendar import Calendar, Event
 import urllib.request, urllib.error, urllib.parse
 from dateutil import rrule
@@ -27,17 +29,30 @@ from bs4 import BeautifulSoup
 import requests
 import dateparser
 
-import config
+#import config
+import yaml
+from argparse import Namespace
 import logging
 from functools import reduce
 
 import traceback
 
+def loadConfig():
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/config.yaml', 'r') as ymlfile:
+        cfg = yaml.safe_load(ymlfile)
+    
+    ns = Namespace(**cfg)
+    return ns
+
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.WARN)
 logger = logging.getLogger(__name__)
 
+config = loadConfig()
+
 dt_format = "%Y-%m-%dT%H:%M:%S"
 tz = timezone(config.TZ)
+
+
 
 # -------------------------------------------------------------
 #  iCal parsing support functions
@@ -66,8 +81,24 @@ def icalToDict(event, output):
 # -------------------------------------------------------------
 #  Parse iCal from URL
 # -------------------------------------------------------------
-
 def parseIcal(url):
+    today = datetime.now(tz).replace(hour=0,minute=0)
+    time_min = today + timedelta(days = -60)
+    time_max = today + timedelta(days = 1*180)
+    events = iCalEvents(url, start=time_min, end=time_max)
+
+    event_list = [ {
+        "title": event.summary,
+        "description": event.description,
+        "location": event.location,
+        "url": event.url,
+        "start": event.start.strftime(dt_format),
+        "end": event.end.strftime(dt_format)
+    } for event in events ]
+
+    return event_list
+
+def parseIcalOld(url):
     req = urllib.request.Request(url, headers={ 'User-Agent': 'Mozilla/5.0' }) #required for Meetup :(
     try:
         response = urllib.request.urlopen(req)
@@ -291,7 +322,7 @@ def parseFacebookPageFallback(pageid):
                 res = ses.get(url)
                 c = BeautifulSoup(res.content,"html.parser")
                 title = c.title.text
-                subevents = c.find_all("a",{"href":re.compile("event_time_id=\d*")})
+                subevents = c.find_all("a",{"href":re.compile(r"event_time_id=\d*")})
 
                 if subevents:
                     logger.warning("[%s] %s has subevents" % (pageid,title))
@@ -301,32 +332,32 @@ def parseFacebookPageFallback(pageid):
                     event_list += subevent_list
                     continue
 
-                times = c.find("div",string=re.compile(".*UTC\+\d\d")).string
+                times = c.find("div",string=re.compile(r".*UTC\+\d\d")).string
                 #m = re.match("(\w*), (\d*)\. (\w*) (\S*) - (\S*) (UTC\+\d\d)", times)
-                m = re.match("(\w*), (\d*)\. (\w* \d*) von (\S*) bis (\S*) (UTC\+\d\d)", times)
+                m = re.match(r"(\w*), (\d*)\. (\w* \d*) von (\S*) bis (\S*) (UTC\+\d\d)", times)
                 if m:
                     start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(6)))
                     end = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(5), m.group(6)))
                 else:
-                    m = re.match("(\w*), (\d* \w*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+                    m = re.match(r"(\w*), (\d* \w*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
                     if m:
                         start = dateparser.parse("%s, %s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)))
                         end = start + timedelta(hours = 1)
                     else:
                         # e.g. "Freitag, 20. September 2019 um 12:00 UTC+02"
-                        m = re.match("(\w*), (\d*)\. (\w*) (\w*) um (\S*) (UTC\+\d\d)", times)
+                        m = re.match(r"(\w*), (\d*)\. (\w*) (\w*) um (\S*) (UTC\+\d\d)", times)
                         if m:
                             start = dateparser.parse("%s, %s. %s %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)))
                             end = start + timedelta(hours = 1)
                         else:
-                            m = re.match("(\d*)\. (\w*) um (\S*) . (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
+                            m = re.match(r"(\d*)\. (\w*) um (\S*) . (\d*)\. (\w*) um (\S*) (UTC\+\d\d)", times)
                             if m:
                                 start = dateparser.parse("%s. %s %s %s00" % (m.group(1), m.group(2), m.group(3), m.group(7)))
                                 end = dateparser.parse("%s. %s %s %s00" % (m.group(4), m.group(5), m.group(6), m.group(7)))
                             else:
                                 logger.error("[%s] %s does not match time filter" % (pageid,title))
                                 continue
-                id = re.search("/events/(\d*)",url).group(1)
+                id = re.search(r"/events/(\d*)",url).group(1)
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -436,18 +467,18 @@ all_events = []
 
 directory = os.path.dirname(os.path.realpath(__file__))
 
-for source in config.SOURCES:
-    filename = "data/" + source["name"] + ".json"
+for source_name, source_config in config.SOURCES.items():
+    filename = "data/" + source_name + ".json"
     from_cache = False
     try:
-        events = getEvents(source)
+        events = getEvents(source_config)
     except Exception as e:
-        logger.warning("Could not read source '%s': %s" % (source["title"], e))
-        traceback.print_exc()
+        logger.warning("Could not read source '%s': %s" % (source_config["title"], e))
+        #traceback.print_exc()
         events = []
 
     if not events or len(events) == 0:
-        logger.warning("No events from API for '%s'" % (source["title"]))
+        logger.warning("No events from API for '%s'" % (source_config["title"]))
         try:
             t = os.path.getmtime(filename)
         except:
@@ -457,8 +488,8 @@ for source in config.SOURCES:
         delta = datetime.now() - mdate
         delta_hours = floor(delta.total_seconds() / 3600)
         if delta_hours > 0 and delta_hours % 12 == 0:
-            logger.warn("Source '%s' has been unavailable for %d hours"
-                    % (source["title"], delta_hours))
+            logger.warning("Source '%s' has been unavailable for %d hours"
+                    % (source_config["title"], delta_hours))
         from_cache = True
         with open(directory + "/" + filename) as data_file:
             events = json.load(data_file)
@@ -472,8 +503,8 @@ for source in config.SOURCES:
 
     frontend_sources.append({
         "url": filename,
-        "title": source["title"],
-        "color": source["color"]
+        "title": source_config["title"],
+        "color": source_config["color"]
     })
 
 filename = directory + "/data/_sources.json"

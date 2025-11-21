@@ -1,0 +1,100 @@
+ICAL_CALNAME: "Munich Makes - Community Calendar"
+
+EVENTBRITE_OAUTH_TOKEN: "xxxx"
+
+FACEBOOK_TOKEN: "xxxx"
+
+TZ: "Europe/Berlin"
+
+DAYS_AHEAD: 1
+
+SOURCES:
+  importexport:
+    title: "Import Export"
+    color: "red"
+    type: "facebook"
+    page_id: "impex.muc"
+    website: "http://www.import-export.cc/"
+
+  zonalibre:
+    title: "Zona Libre"
+    color: "brown"
+    type: "facebook"
+    page_id: "zonalibremuenchen"
+    website: "https://www.leonrod-haus.de/zona-libre/"
+
+  mucca:
+    title: "Munich Center of Community Arts - MUCCA"
+    color: "darkgreen"
+    type: "facebook"
+    page_id: "muccaMuenchen"
+    website: "http://www.import-export.cc/"
+
+  imal:
+    title: "IMAL International Munich Art Lab"
+    color: "green"
+    type: "facebook"
+    page_id: "IMAL.bk"
+    website: "http://www.imal.info/"
+
+  leonrodhaus:
+    title: "Leonrodhaus für Kunst"
+    color: "orange"
+    type: "facebook"
+    page_id: "Leonrodhaus"
+    website: "http://www.import-export.cc/"
+
+  pathos:
+    title: "PATHOS München"
+    color: "darkslategrey"
+    type: "facebook"
+    page_id: "pathosmuenchen"
+    website: "http://www.import-export.cc/"
+
+  mumalab:
+    title: "Munich Maker Lab"
+    color: "blue"
+    type: "ics"
+    url: "https://www.google.com/calendar/ical/lbd0aa2rlahecp7juvp35hd0k0%40group.calendar.google.com/public/basic.ics"
+    website: "https://munichmakerlab.de/calendar"
+
+  werkmuenchen:
+    title: "Werk München"
+    color: "grey"
+    type: "facebook"
+    page_id: "werkmuenchen"
+    website: "http://homepage.theater-werkmuenchen.de/"
+
+  klangbuero:
+    title: "Klangbüro"
+    color: "darkgrey"
+    type: "facebook"
+    page_id: "soundofficemunich"
+    website: "https://www.facebook.com/soundofficemunich/"
+
+  schwerereiter:
+    title: "Schwere Reiter"
+    color: "yellow"
+    type: "microdata"
+    url: "https://www.muenchenticket.de/search.jsp?venue=5656"
+    website: "http://www.schwerereiter.de/"
+
+  spectrum:
+    title: "The Spectrum"
+    color: "#aaa9ff"
+    type: "ics"
+    url: "https://p113-caldav.icloud.com/published/2/MTAwNzM2MTk3MTEwMDczNpK18M3GmvYAFo-81SKYSXidBgJ-8fWXloZJiyA3_BAqYnyBDr_TCutjFQo__sRKN1ET2yEi7lSXRtC6XeCh08o"
+    website: "https://the-spectrum.space"
+
+
+# Twitter
+TWITTER_ENABLED = False
+TWITTER_CONSUMER_KEY = "xxx"
+TWITTER_CONSUMER_SECRET = "xxx"
+TWITTER_ACCESS_KEY = "xxx"
+TWITTER_ACCESS_SECRET = "xxx"
+
+# Mastodon
+MASTODON_ENABLED = False
+MASTODON_URL = "https://muenchen.social/"
+MASTODON_ACCESS_TOKEN = "xxxx"
