@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 config = loadConfig()
 
-dt_format = "%Y-%m-%dT%H:%M:%S"
+dt_format = "%Y-%m-%dT%H:%M:%S%z"
 tz = timezone(config.TZ)
 
 
