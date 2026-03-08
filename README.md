@@ -22,8 +22,8 @@ virtualenv env
 . env/bin/activate
 pip install --upgrade -r requirements.txt
 deactivate
-cp config.py.sample config.py
-vi config.py
+cp config.yaml.sample config.yaml
+vi config.yaml
 crontab -e
 ```
 
